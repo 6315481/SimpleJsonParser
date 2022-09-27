@@ -22,7 +22,6 @@ namespace SimpleJsonParser {
         Object = 1 << 4,
         Boolean = 1 << 5,
         Null = 1 << 6,
-        Number = Integer | Fraction
     };
 
     static std::map<ValueType, const std::string> ValueTypeToString = {
@@ -34,7 +33,6 @@ namespace SimpleJsonParser {
         {ValueType::Object, "Object"},
         {ValueType::Boolean, "Boolean"},
         {ValueType::Null, "Null"},
-        {ValueType::Number, "Number"}
     };
 
      std::ostream& operator<<(std::ostream& s, ValueType type) {
@@ -75,6 +73,10 @@ namespace SimpleJsonParser {
 
         Value(double val) : m_type(ValueType::Fraction) {
             m_data.fraction = val;
+        }
+
+        Value(const char* str) : m_type(ValueType::String) {
+            string_ptr = std::make_unique<std::string>(str);
         }
         
         Value(const std::string& str) : m_type(ValueType::String) {
@@ -154,12 +156,14 @@ namespace SimpleJsonParser {
             return Value();
         }
         
+        bool is_uninitialized() const { return m_type == ValueType::Uninitialized; }
         bool is_integer() const { return m_type == ValueType::Integer; }
         bool is_fraction() const { return m_type == ValueType::Fraction; }
-        bool is_number() const { return m_type == ValueType::Number; }
         bool is_string() const { return m_type == ValueType::String; }
         bool is_array() const { return m_type == ValueType::Array; }
         bool is_object() const { return m_type == ValueType::Object; }
+        bool is_boolean() const { return m_type == ValueType::Boolean; }
+        bool is_null() const { return m_type == ValueType::Null; }
 
         int64_t integer() const {
             check_type(ValueType::Integer);
@@ -212,7 +216,7 @@ namespace SimpleJsonParser {
             array_ptr->push_back(member.clone());
         }
 
-        size_t size() {
+        size_t size_array() {
             return array_ptr->size();
         }
 
@@ -245,6 +249,10 @@ namespace SimpleJsonParser {
         Value& operator[](const std::string& key) const {
             check_type(ValueType::Object);
             return (*object_ptr)[key];
+        }
+
+        size_t size_object() {
+            return object_ptr->size();
         }
                 
     private:
