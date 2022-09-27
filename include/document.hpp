@@ -217,6 +217,7 @@ namespace SimpleJsonParser {
         }
 
         size_t size_array() {
+            check_type(ValueType::Array);
             return array_ptr->size();
         }
 
@@ -252,6 +253,7 @@ namespace SimpleJsonParser {
         }
 
         size_t size_object() {
+            check_type(ValueType::Object);
             return object_ptr->size();
         }
                 
